@@ -1,15 +1,16 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from flight import Depart, Return, Flight
+import time
 
-PATH = 'C:\Program Files (x86)\chromedriver.exe'
-op = webdriver.ChromeOptions()
-op.add_argument('headless')
-driver = webdriver.Chrome(PATH, options=op)
-# driver = webdriver.Chrome(PATH)
+
 url = 'https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=MBA&date_from=Tue%2C+1+Mar+2022&date_to=Tue%2C+8+Mar+2022&adult_no=1&children_no=0&infant_no=0&currency=USD&searchFlight='
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 driver.get(url)
 
 departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
@@ -20,9 +21,9 @@ inbound_flights = inbound.find_elements(By.CLASS_NAME, "fly5-result")
 
 departing_objects = []
 inbound_objects = []
+
+
 # INSERT DEPARTING FLIGHT DATA
-
-
 def create_departing_classes(departing_flights):
     for departing in departing_flights:
         # DEPARTING DATA
@@ -53,6 +54,7 @@ def create_departing_classes(departing_flights):
                                         outbound_departure_time, arival_departure_time, outbound_flight_key))
 
 
+# INSERT RETURNING FLIGHT DATA
 def create_returning_classes(inbound_flights):
     for outbound in inbound_flights:
         # DEPARTING DATA
@@ -98,23 +100,43 @@ def input_flight_key(depart_flight_key, inbound_flight_key):
 
 create_departing_classes(departing_flights)
 create_returning_classes(inbound_flights)
+
+
+def all_requests(departing, inbound):
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.ID, "outbound-solution-id")))
+    input_flight_key(departing.depart_flight_key,
+                     inbound.depart_flight_key)
+    continue_btn = driver.find_element(By.ID, "continue-btn")
+    driver.execute_script(
+        "return arguments[0].scrollIntoView(true);", continue_btn)
+    continue_btn.click()
+    total_price_breakdown = WebDriverWait(driver, 20).until(
+        EC.visibility_of_element_located((By.CLASS_NAME, "fly5-totalprice")))
+    total_price = total_price_breakdown.find_element(
+        By.CLASS_NAME, "fly5-price")
+
+    breakdown = driver.find_element(By.CLASS_NAME, "fly5-breakdown")
+    breakdown_outgoing_div_tax = breakdown.find_elements(
+        By.CLASS_NAME, "fly5-bkdown")[0]
+    breakdown_outgoing_div_tax = breakdown_outgoing_div_tax.find_elements(
+        By.CSS_SELECTOR, "div")[1]
+    out_tax = breakdown_outgoing_div_tax.find_element(
+        By.CLASS_NAME, "num").get_attribute('innerHTML')
+
+    breakdown_return_div_tax = breakdown.find_elements(
+        By.CLASS_NAME, "fly5-bkdown")[1]
+    breakdown_return_div_tax = breakdown_return_div_tax.find_elements(
+        By.CSS_SELECTOR, "div")[1]
+    return_tax = breakdown_return_div_tax.find_element(
+        By.CLASS_NAME, "num").get_attribute('innerHTML')
+
+    total_tax = float(out_tax) + float(return_tax)
+    print(total_tax)
+
+
 for departing in departing_objects:
     for inbound in inbound_objects:
-        input_flight_key(departing.depart_flight_key,
-                         inbound.depart_flight_key)
-        continue_btn = driver.find_element(By.ID, "continue-btn").click()
-        total_price_breakdown = driver.find_element(
-            By.CLASS_NAME, "fly5-totalprice")
-        total_price = total_price_breakdown.find_element(
-            By.CLASS_NAME, "fly5-price")
-        breakdown = driver.find_element(By.CLASS_NAME, "fly5-breakdown")
-        out_tax = breakdown.find_elements(
-            By.CSS_SELECTOR, "div")[2]
-        out_tax = out_tax.find_element(By.CLASS_NAME, "num")
-        print('asdasdasdasd', out_tax)
-
-        # both = breakdown.find_elements(
-        #     By.CLASS_NAME, "fly5-bkdown")
-        # for i in both:
-        #     tax = i.find_elements(By.CSS_SELECTOR, "div")[1]
-        #     print('aaaaaaa', tax.get_attribute('outerHTML'))
+        all_requests(departing, inbound)
+        driver.back()
+        time.sleep(5)
