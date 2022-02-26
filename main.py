@@ -29,7 +29,6 @@ inbound_objects = []
 
 # INSERT DEPARTING FLIGHT DATA
 def create_departing_classes(departing):
-    # for departing in departing_flights:
     # DEPARTING DATA
     ActionChains(driver).move_to_element(
         departing).click(departing).perform()
@@ -42,29 +41,12 @@ def create_departing_classes(departing):
     print(card_body.get_attribute('innerHTML'))
     print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     btn = card_body.find_element(By.TAG_NAME, "button")
-    # print(btn.get_attribute('outerHTML'))
     btn = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(btn))
     ActionChains(driver).move_to_element(btn).click(btn).perform()
-
-    # ARIVAL DATA
-    # arival_data = departing.find_element(
-    #     By.CSS_SELECTOR, '[data-title="Arrives"]')
-    # inbound_departure = arival_data.find_element(
-    #     By.CLASS_NAME, 'flfrom').text.rstrip()[-4:-1]
-    # arival_departure_time = arival_data.find_element(
-    #     By.CLASS_NAME, 'fltime').text
-    # arival_date = arival_data.find_element(
-    #     By.CLASS_NAME, 'fldate').text
-    # arival_departure_time = arival_departure_time + arival_date
-    # outbound_flight_key = departing.find_element(By.CLASS_NAME,
-    #                                             "flight-classes").get_attribute('data-flight-key')
-    # departing_objects.append(Depart(outbound_departure, inbound_departure,
-    #                                 outbound_departure_time, arival_departure_time, outbound_flight_key))
 
 
 # INSERT RETURNING FLIGHT DATA
 def create_returning_classes(inbound):
-    # for inbound in inbound_flights:
     # DEPARTING DATA
     ActionChains(driver).move_to_element(
         inbound).click(inbound).perform()
@@ -80,31 +62,6 @@ def create_returning_classes(inbound):
     # print(btn.get_attribute('outerHTML'))
     btn = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(btn))
     ActionChains(driver).move_to_element(btn).click(btn).perform()
-
-    # ARIVAL DATA
-    # arival_data = outbound.find_element(
-    #     By.CSS_SELECTOR, '[data-title="Arrives"]')
-    # inbound_departure = arival_data.find_element(
-    #     By.CLASS_NAME, 'flfrom').text.rstrip()[-4:-1]
-    # arival_departure_time = arival_data.find_element(
-    #     By.CLASS_NAME, 'fltime').text
-    # arival_date = arival_data.find_element(
-    #     By.CLASS_NAME, 'fldate').text
-    # arival_departure_time = arival_departure_time + arival_date
-    # outbound_flight_key = outbound.find_element(By.CLASS_NAME,
-    #                                             "flight-classes").get_attribute('data-flight-key')
-    # inbound_objects.append(Return(outbound_departure, inbound_departure,
-    #                               outbound_departure_time, arival_departure_time, outbound_flight_key))
-
-
-# for departing in departing_flights:
-#     departing.click()
-#     first_card = departing.find_element(
-#         By.ID, "flt0417-0")
-#     card = first_card.find_element(
-#         By.CLASS_NAME, "card")
-#     card_body = card.find_element(By.CLASS_NAME, "card-body")
-#     button = first_card.find_element(By.TAG_NAME, "button").click()
 
 
 def input_flight_key(depart_flight_key, inbound_flight_key):
@@ -154,20 +111,9 @@ def all_requests(departing, inbound):
 
 
 def click_continue():
-    # continue_btn = driver.find_element(By.ID, "continue-btn")
     driver.execute_script("arguments[0].click();", WebDriverWait(
         driver, 20).until(EC.element_to_be_clickable((By.ID, "continue-btn"))))
-    # driver.execute_script(
-    #     "return arguments[0].scrollIntoView(true);", continue_btn)
-    # continue_btn.click()
 
-
-# for count, departing in enumerate(departing_objects):
-#     for count1, inbound in enumerate(inbound_objects):
-#         print(count, count1)
-#         all_requests(departing, inbound)
-#         driver.back()
-#         driver.implicitly_wait(3)
 
 for count1, depart in enumerate(departing_flights):
     departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
