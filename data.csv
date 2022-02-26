@@ -1,0 +1,5 @@
+outbound_departure_airport,outbound_arrival_airport,outbound_departure_time,outbound_arrival_time,inbound_departure_airport,inbound_arrival_airport,inbound_departure_time,inbound_arrival_time,price,taxes
+NBO,MBA,"6:00amTue 08, Mar","7:10am Tue 08, Mar",MBA,NBO,"7:30am Tue 15, Mar","8:40amTue 15, Mar",78.0,12.0
+NBO,MBA,"6:00amTue 08, Mar","7:10am Tue 08, Mar",MBA,NBO,"8:20pm Tue 15, Mar","9:30pmTue 15, Mar",78.0,12.0
+NBO,MBA,"6:40pmTue 08, Mar","7:50pm Tue 08, Mar",MBA,NBO,"7:30am Tue 15, Mar","8:40amTue 15, Mar",78.0,12.0
+NBO,MBA,"6:40pmTue 08, Mar","7:50pm Tue 08, Mar",MBA,NBO,"8:20pm Tue 15, Mar","9:30pmTue 15, Mar",78.0,12.0

@@ -1,3 +1,5 @@
+import html
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -6,16 +8,35 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from flight import Depart, Return, Flight
-import time
+from flight import Flight
+from datetime import datetime
+from datetime import timedelta
+import csv
+import calendar
 
 
-url = 'https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=MBA&date_from=Tue%2C+1+Mar+2022&date_to=Tue%2C+8+Mar+2022&adult_no=1&children_no=0&infant_no=0&currency=USD&searchFlight='
+# DEPART +10 days
+date_now = datetime.now()
+add_ten_days = date_now + timedelta(days=10)
+day_from = calendar.day_name[add_ten_days.weekday()][0:3]
+date_number_from = add_ten_days.day
+month_name_from = add_ten_days.strftime("%b")
+year_from = add_ten_days.year
+print(add_ten_days, day_from, date_number_from, month_name_from, year_from)
+# RETURN DATE
+add_seven_days = add_ten_days + timedelta(days=7)
+day_to = calendar.day_name[add_seven_days.weekday()][0:3]
+date_number_to = add_seven_days.day
+month_name_to = add_seven_days.strftime("%b")
+year_to = add_seven_days.year
+
+url = f'https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=MBA&date_from={day_from}%2C+{date_number_from}+{month_name_from}+{year_from}&date_to={day_to}%2C+{date_number_to}+{month_name_to}+{year_to}&adult_no=1&children_no=0&infant_no=0&currency=USD&searchFlight='
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 driver = webdriver.Chrome(options=options, service=Service(
     ChromeDriverManager().install()))
 driver.get(url)
+
 
 departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
 departing_flights = departing.find_elements(By.CLASS_NAME, "fly5-result")
@@ -23,8 +44,7 @@ inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
 inbound_flights = inbound.find_elements(By.CLASS_NAME, "fly5-result")
 
 
-departing_objects = []
-inbound_objects = []
+flight_object_list = []
 
 
 # INSERT DEPARTING FLIGHT DATA
@@ -38,8 +58,6 @@ def create_departing_classes(departing):
     card_data = row.find_element(
         By.CLASS_NAME, "card")
     card_body = card_data.find_element(By.CLASS_NAME, "card-body")
-    print(card_body.get_attribute('innerHTML'))
-    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     btn = card_body.find_element(By.TAG_NAME, "button")
     btn = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(btn))
     ActionChains(driver).move_to_element(btn).click(btn).perform()
@@ -56,41 +74,63 @@ def create_returning_classes(inbound):
     card_data = row.find_element(
         By.CLASS_NAME, "card")
     card_body = card_data.find_element(By.CLASS_NAME, "card-body")
-    print(card_body.get_attribute('innerHTML'))
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbb')
     btn = card_body.find_element(By.TAG_NAME, "button")
-    # print(btn.get_attribute('outerHTML'))
     btn = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(btn))
     ActionChains(driver).move_to_element(btn).click(btn).perform()
 
 
-def input_flight_key(depart_flight_key, inbound_flight_key):
-    driver.execute_script(
-        f"document.getElementById('outbound-solution-id').setAttribute('value', '{depart_flight_key}')")
-    driver.execute_script(
-        "document.getElementById('outbound-cabin-class').setAttribute('value', '0')")
-    driver.execute_script(
-        f"document.getElementById('inbound-solution-id').setAttribute('value', '{inbound_flight_key}')")
-    driver.execute_script(
-        "document.getElementById('inbound-cabin-class').setAttribute('value', '0')")
-
-
-def all_requests(departing, inbound):
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.ID, "outbound-solution-id")))
-    input_flight_key(departing.depart_flight_key,
-                     inbound.depart_flight_key)
-    print(departing.depart_flight_key)
-    print(inbound.depart_flight_key)
-    continue_btn = driver.find_element(By.ID, "continue-btn")
-    driver.execute_script(
-        "return arguments[0].scrollIntoView(true);", continue_btn)
-    continue_btn.click()
+def get_data():
+    # DEPART DATA
+    flight_summary = WebDriverWait(driver, 20).until(
+        EC.visibility_of_element_located((By.ID, "fsummary")))
+    flight_out = flight_summary.find_element(By.CLASS_NAME, "fly5-fout")
+    flight_time_data = flight_out.find_element(By.CLASS_NAME, "fly5-det")
+    flight_out_time_data = flight_time_data.find_element(
+        By.CLASS_NAME, "fly5-timeout")
+    flight_out_time = flight_out_time_data.find_element(
+        By.CLASS_NAME, "fly5-ftime").text
+    flight_out_date = flight_out_time_data.find_element(
+        By.CLASS_NAME, "fly5-fdate").text
+    outbound_departure_time = flight_out_time + flight_out_date
+    flight_landing_data = flight_time_data.find_element(
+        By.CLASS_NAME, "fly5-timein")
+    flight_landing_time = flight_landing_data.find_element(
+        By.CLASS_NAME, "fly5-ftime").text
+    flight_landing_date = flight_landing_data.find_element(
+        By.CLASS_NAME, "fly5-fdate").text
+    outbound_arrival_time = flight_landing_time + ' ' + flight_landing_date
+    flight_container = flight_out.find_element(By.CLASS_NAME, "fly5-liner")
+    depart_from = flight_container.find_element(
+        By.CLASS_NAME, "fly5-frshort").text
+    depart_to = flight_container.find_element(
+        By.CLASS_NAME, "fly5-toshort").text
+    # RETURN DATA
+    flight_return = flight_summary.find_element(By.CLASS_NAME, "fly5-fin")
+    flight_container = flight_return.find_element(By.CLASS_NAME, "fly5-liner")
+    return_from = flight_container.find_element(
+        By.CLASS_NAME, "fly5-frshort").text
+    return_to = flight_container.find_element(
+        By.CLASS_NAME, "fly5-toshort").text
+    flight_time_data = flight_return.find_element(By.CLASS_NAME, "fly5-det")
+    flight_out_time_data = flight_time_data.find_element(
+        By.CLASS_NAME, "fly5-timeout")
+    flight_out_time = flight_out_time_data.find_element(
+        By.CLASS_NAME, "fly5-ftime").text
+    flight_out_date = flight_out_time_data.find_element(
+        By.CLASS_NAME, "fly5-fdate").text
+    inbound_departure_time = flight_out_time + ' ' + flight_out_date
+    flight_landing_data = flight_time_data.find_element(
+        By.CLASS_NAME, "fly5-timein")
+    flight_landing_time = flight_landing_data.find_element(
+        By.CLASS_NAME, "fly5-ftime").text
+    flight_landing_date = flight_landing_data.find_element(
+        By.CLASS_NAME, "fly5-fdate").text
+    inbound_arrival_time = flight_landing_time + flight_landing_date
+    # PRICE DATA
     total_price_breakdown = WebDriverWait(driver, 20).until(
         EC.visibility_of_element_located((By.CLASS_NAME, "fly5-totalprice")))
     total_price = total_price_breakdown.find_element(
-        By.CLASS_NAME, "fly5-price")
-
+        By.CLASS_NAME, "fly5-price").text
     breakdown = driver.find_element(By.CLASS_NAME, "fly5-breakdown")
     breakdown_outgoing_div_tax = breakdown.find_elements(
         By.CLASS_NAME, "fly5-bkdown")[0]
@@ -98,7 +138,6 @@ def all_requests(departing, inbound):
         By.CSS_SELECTOR, "div")[1]
     out_tax = breakdown_outgoing_div_tax.find_element(
         By.CLASS_NAME, "num").get_attribute('innerHTML')
-
     breakdown_return_div_tax = breakdown.find_elements(
         By.CLASS_NAME, "fly5-bkdown")[1]
     breakdown_return_div_tax = breakdown_return_div_tax.find_elements(
@@ -107,7 +146,9 @@ def all_requests(departing, inbound):
         By.CLASS_NAME, "num").get_attribute('innerHTML')
 
     total_tax = float(out_tax) + float(return_tax)
-    print(total_tax)
+    # CREATE OBJECT LIST
+    flight_object_list.append(
+        Flight(depart_from, depart_to, outbound_departure_time, outbound_arrival_time, return_from, return_to, inbound_departure_time, inbound_arrival_time, float(total_price), total_tax))
 
 
 def click_continue():
@@ -115,19 +156,33 @@ def click_continue():
         driver, 20).until(EC.element_to_be_clickable((By.ID, "continue-btn"))))
 
 
-for count1, depart in enumerate(departing_flights):
+for index1, depart in enumerate(departing_flights):
     departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
     depart = departing.find_elements(By.CLASS_NAME, "fly5-result")
     inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
-    for count2, returning in enumerate(inbound_flights):
+    for index2, returning in enumerate(inbound_flights):
         departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
         depart = departing.find_elements(By.CLASS_NAME, "fly5-result")
         inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
         returning = inbound.find_elements(By.CLASS_NAME, "fly5-result")
-        create_departing_classes(depart[count1])
-        print(count1, count2)
-        create_returning_classes(returning[count2])
+        create_departing_classes(depart[index1])
+        create_returning_classes(returning[index2])
         click_continue()
+        get_data()
         driver.back()
         WebDriverWait(
             driver, 20).until(EC.element_to_be_clickable((By.TAG_NAME, "body"))).send_keys(Keys.HOME)
+
+
+def write_to_csv(flight_list):
+    headers = ['outbound_departure_airport', 'outbound_arrival_airport', 'outbound_departure_time', 'outbound_arrival_time',
+               'inbound_departure_airport', 'inbound_arrival_airport', 'inbound_departure_time', 'inbound_arrival_time', 'price', 'taxes']
+    with open('data.csv', 'w', newline='', encoding='UTF8') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for obj in flight_list:
+            writer.writerow([obj.outbound_departure, obj.outbound_arrival, obj.outbound_departure_time, obj.outbound_arrival_time,
+                            obj.inbound_departure, obj.inbound_arrival, obj.inbound_departure_time, obj.inbound_arrival_time, obj.price, obj.taxes])
+
+
+write_to_csv(flight_object_list)
