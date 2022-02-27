@@ -1,5 +1,9 @@
 outbound_departure_airport,outbound_arrival_airport,outbound_departure_time,outbound_arrival_time,inbound_departure_airport,inbound_arrival_airport,inbound_departure_time,inbound_arrival_time,price,taxes
-NBO,MBA,"6:00amTue 08, Mar","7:10am Tue 08, Mar",MBA,NBO,"7:30am Tue 15, Mar","8:40amTue 15, Mar",78.0,12.0
-NBO,MBA,"6:00amTue 08, Mar","7:10am Tue 08, Mar",MBA,NBO,"8:20pm Tue 15, Mar","9:30pmTue 15, Mar",78.0,12.0
-NBO,MBA,"6:40pmTue 08, Mar","7:50pm Tue 08, Mar",MBA,NBO,"7:30am Tue 15, Mar","8:40amTue 15, Mar",78.0,12.0
-NBO,MBA,"6:40pmTue 08, Mar","7:50pm Tue 08, Mar",MBA,NBO,"8:20pm Tue 15, Mar","9:30pmTue 15, Mar",78.0,12.0
+NBO,MBA,"6:00am Wed 09, Mar","7:10am Wed 09, Mar",MBA,NBO,"7:30am Wed 16, Mar","8:40am Wed 16, Mar",70.0,12.0
+NBO,MBA,"6:00am Wed 09, Mar","7:10am Wed 09, Mar",MBA,NBO,"8:20pm Wed 16, Mar","9:30pm Wed 16, Mar",70.0,12.0
+NBO,MBA,"6:40pm Wed 09, Mar","7:50pm Wed 09, Mar",MBA,NBO,"7:30am Wed 16, Mar","8:40am Wed 16, Mar",83.0,12.0
+NBO,MBA,"6:40pm Wed 09, Mar","7:50pm Wed 09, Mar",MBA,NBO,"8:20pm Wed 16, Mar","9:30pm Wed 16, Mar",83.0,12.0
+NBO,MBA,"6:00am Sat 19, Mar","7:10am Sat 19, Mar",MBA,NBO,"7:30am Sat 26, Mar","8:40am Sat 26, Mar",78.0,12.0
+NBO,MBA,"6:00am Sat 19, Mar","7:10am Sat 19, Mar",MBA,NBO,"8:20pm Sat 26, Mar","9:30pm Sat 26, Mar",86.0,12.0
+NBO,MBA,"6:40pm Sat 19, Mar","7:50pm Sat 19, Mar",MBA,NBO,"7:30am Sat 26, Mar","8:40am Sat 26, Mar",78.0,12.0
+NBO,MBA,"6:40pm Sat 19, Mar","7:50pm Sat 19, Mar",MBA,NBO,"8:20pm Sat 26, Mar","9:30pm Sat 26, Mar",86.0,12.0
