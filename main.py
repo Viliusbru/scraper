@@ -13,58 +13,11 @@ import csv
 import calendar
 
 
-# DEPART +10 days
-date_now = datetime.now()
-add_ten_days = date_now + timedelta(days=10)
-day_from = calendar.day_name[add_ten_days.weekday()][0:3]
-date_number_from = add_ten_days.day
-month_name_from = add_ten_days.strftime("%b")
-year_from = add_ten_days.year
-print(add_ten_days, day_from, date_number_from, month_name_from, year_from)
-
-# RETURN DATE
-add_seven_days = add_ten_days + timedelta(days=7)
-day_to = calendar.day_name[add_seven_days.weekday()][0:3]
-date_number_to = add_seven_days.day
-month_name_to = add_seven_days.strftime("%b")
-year_to = add_seven_days.year
-
-# DEPART +20 days
-add_twenty_days = date_now + timedelta(days=20)
-day_from2 = calendar.day_name[add_twenty_days.weekday()][0:3]
-date_number_from2 = add_twenty_days.day
-month_name_from2 = add_twenty_days.strftime("%b")
-year_from2 = add_twenty_days.year
-print(add_twenty_days, day_from, date_number_from, month_name_from, year_from)
-# RETURN DATE
-add_seven_days2 = add_twenty_days + timedelta(days=7)
-day_to2 = calendar.day_name[add_seven_days2.weekday()][0:3]
-date_number_to2 = add_seven_days2.day
-month_name_to2 = add_seven_days2.strftime("%b")
-year_to2 = add_seven_days2.year
-
-
-urls = [f'https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=MBA&date_from={day_from}%2C+{date_number_from}+{month_name_from}+{year_from}&date_to={day_to}%2C+{date_number_to}+{month_name_to}+{year_to}&adult_no=1&children_no=0&infant_no=0&currency=USD&searchFlight=',
-        f'https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=MBA&date_from={day_from2}%2C+{date_number_from2}+{month_name_from2}+{year_from2}&date_to={day_to2}%2C+{date_number_to2}+{month_name_to2}+{year_to2}&adult_no=1&children_no=0&infant_no=0&currency=USD&searchFlight='
-        ]
-options = webdriver.ChromeOptions()
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-driver = webdriver.Chrome(options=options, service=Service(
-    ChromeDriverManager().install()))
-
-driver.get(urls[0])
-
-
-departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
-departing_flights = departing.find_elements(By.CLASS_NAME, "fly5-result")
-inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
-inbound_flights = inbound.find_elements(By.CLASS_NAME, "fly5-result")
-
-
-flight_object_list = []
-
-
 # INSERT DEPARTING FLIGHT DATA
+
+ALL_FLIGHT_LIST = []
+
+
 def create_departing_classes(departing):
     # DEPARTING DATA
     ActionChains(driver).move_to_element(
@@ -163,8 +116,9 @@ def get_data():
         By.CLASS_NAME, "num").get_attribute('innerHTML')
 
     total_tax = float(out_tax) + float(return_tax)
+
     # CREATE OBJECT LIST
-    flight_object_list.append(
+    ALL_FLIGHT_LIST.append(
         Flight(depart_from, depart_to, outbound_departure_time, outbound_arrival_time, return_from, return_to, inbound_departure_time, inbound_arrival_time, float(total_price), total_tax))
 
 
@@ -174,11 +128,16 @@ def click_continue():
 
 
 def loop_for_data():
+    departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
+    departing_flights = departing.find_elements(By.CLASS_NAME, "fly5-result")
+    inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
+    inbound_flights = inbound.find_elements(By.CLASS_NAME, "fly5-result")
     for index1, depart in enumerate(departing_flights):
         departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
         depart = departing.find_elements(By.CLASS_NAME, "fly5-result")
         inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
         for index2, returning in enumerate(inbound_flights):
+            print(index1, index2)
             departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
             depart = departing.find_elements(By.CLASS_NAME, "fly5-result")
             inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
@@ -203,7 +162,54 @@ def write_to_csv(flight_list):
                             obj.inbound_departure, obj.inbound_arrival, obj.inbound_departure_time, obj.inbound_arrival_time, obj.price, obj.taxes])
 
 
-for i in urls:
-    driver.get(i)
+def create_urls():
+    # DEPART +10 days
+    date_now = datetime.now()
+    add_ten_days = date_now + timedelta(days=10)
+    day_from = calendar.day_name[add_ten_days.weekday()][0:3]
+    date_number_from = add_ten_days.day
+    month_name_from = add_ten_days.strftime("%b")
+    year_from = add_ten_days.year
+
+    # RETURN DATE
+    add_seven_days = add_ten_days + timedelta(days=7)
+    day_to = calendar.day_name[add_seven_days.weekday()][0:3]
+    date_number_to = add_seven_days.day
+    month_name_to = add_seven_days.strftime("%b")
+    year_to = add_seven_days.year
+
+    # DEPART +20 days
+    add_twenty_days = date_now + timedelta(days=20)
+    day_from2 = calendar.day_name[add_twenty_days.weekday()][0:3]
+    date_number_from2 = add_twenty_days.day
+    month_name_from2 = add_twenty_days.strftime("%b")
+    year_from2 = add_twenty_days.year
+
+    # RETURN DATE
+    add_seven_days2 = add_twenty_days + timedelta(days=7)
+    day_to2 = calendar.day_name[add_seven_days2.weekday()][0:3]
+    date_number_to2 = add_seven_days2.day
+    month_name_to2 = add_seven_days2.strftime("%b")
+    year_to2 = add_seven_days2.year
+
+    urls = [f'https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=MBA&date_from={day_from}%2C+{date_number_from}+{month_name_from}+{year_from}&date_to={day_to}%2C+{date_number_to}+{month_name_to}+{year_to}&adult_no=1&children_no=0&infant_no=0&currency=USD&searchFlight=',
+            f'https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=MBA&date_from={day_from2}%2C+{date_number_from2}+{month_name_from2}+{year_from2}&date_to={day_to2}%2C+{date_number_to2}+{month_name_to2}+{year_to2}&adult_no=1&children_no=0&infant_no=0&currency=USD&searchFlight=']
+
+    return urls
+
+
+for url in create_urls():
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(options=options, service=Service(
+        ChromeDriverManager().install()))
+    print(url)
+    driver.get(url)
+    driver.maximize_window()
     loop_for_data()
-write_to_csv(flight_object_list)
+
+print('before')
+print(ALL_FLIGHT_LIST[0].__dict__)
+write_to_csv(ALL_FLIGHT_LIST)
+print('after')
+driver.quit()
