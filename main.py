@@ -137,7 +137,6 @@ def loop_for_data():
         depart = departing.find_elements(By.CLASS_NAME, "fly5-result")
         inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
         for index2, returning in enumerate(inbound_flights):
-            print(index1, index2)
             departing = driver.find_element(By.CLASS_NAME, "fly5-depart")
             depart = departing.find_elements(By.CLASS_NAME, "fly5-result")
             inbound = driver.find_element(By.CLASS_NAME, "fly5-return")
@@ -203,13 +202,10 @@ for url in create_urls():
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(options=options, service=Service(
         ChromeDriverManager().install()))
-    print(url)
     driver.get(url)
     driver.maximize_window()
     loop_for_data()
 
-print('before')
-print(ALL_FLIGHT_LIST[0].__dict__)
+
 write_to_csv(ALL_FLIGHT_LIST)
-print('after')
 driver.quit()
